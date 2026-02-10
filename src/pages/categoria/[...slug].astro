@@ -1,0 +1,383 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import AdPlaceholder from '../../components/AdPlaceholder.astro';
+import Badge from '../../components/Badge.astro';
+import { getCollection } from 'astro:content';
+import { categories as categoryConfig, getCategory, getCategoryColor } from '../../data/categories';
+
+// Static paths for categories with pagination
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts');
+  const categories = Object.keys(categoryConfig);  // Dinámico desde config
+  const postsPerPage = 9;
+
+  const paths: any[] = [];
+
+  for (const category of categories) {
+    const categoryPosts = allPosts
+      .filter(post => post.data.category === category && !post.data.draft)
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+    const totalPages = Math.ceil(categoryPosts.length / postsPerPage) || 1;
+
+    // First page: /categoria/ia
+    paths.push({
+      params: { slug: category },
+      props: {
+        category,
+        posts: categoryPosts.slice(0, postsPerPage),
+        currentPage: 1,
+        totalPages,
+        totalPosts: categoryPosts.length
+      }
+    });
+
+    // Additional pages: /categoria/ia/2, /categoria/ia/3, etc.
+    for (let page = 2; page <= totalPages; page++) {
+      const start = (page - 1) * postsPerPage;
+      paths.push({
+        params: { slug: `${category}/${page}` },
+        props: {
+          category,
+          posts: categoryPosts.slice(start, start + postsPerPage),
+          currentPage: page,
+          totalPages,
+          totalPosts: categoryPosts.length
+        }
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { category, posts, currentPage, totalPages, totalPosts } = Astro.props;
+
+// Obtener metadata de la categoría desde la configuración
+const categoryData = getCategory(category);
+const meta = {
+  label: categoryData?.name || category,
+  shortLabel: categoryData?.shortName || category,
+  description: categoryData?.description || '',
+  color: categoryData?.color || '#6B7280'
+};
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function getAvatarUrl(author: string, authorAvatar?: string): string {
+  if (authorAvatar) return authorAvatar;
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(author)}`;
+}
+
+// Generate page numbers for pagination
+function getPageNumbers(current: number, total: number): (number | string)[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages: (number | string)[] = [];
+  if (current <= 4) {
+    pages.push(1, 2, 3, 4, 5, '...', total);
+  } else if (current >= total - 3) {
+    pages.push(1, '...', total - 4, total - 3, total - 2, total - 1, total);
+  } else {
+    pages.push(1, '...', current - 1, current, current + 1, '...', total);
+  }
+  return pages;
+}
+
+const pageNumbers = getPageNumbers(currentPage, totalPages);
+---
+
+<Layout title={`${meta.label} - Noticias`} description={meta.description}>
+  <Header />
+
+  <!-- CATEGORY HEADER -->
+  <section class="category-header" style={`--category-color: ${meta.color}`}>
+    <div class="container">
+      <div class="category-header__inner">
+        <div class="category-header__left">
+          <Badge category={category} size="lg" />
+          <h1 class="category-header__title">{meta.label}</h1>
+        </div>
+        {totalPages > 1 && (
+          <span class="category-header__page">Página {currentPage} de {totalPages}</span>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- AD: After Header -->
+  <div class="container">
+    <AdPlaceholder slot="category-after-header" size="leaderboard" />
+  </div>
+
+  <!-- POSTS GRID -->
+  <section class="category-posts">
+    <div class="container">
+      {posts.length > 0 ? (
+        <div class="category-posts__grid">
+          {posts.map((post: any) => (
+            <article class="post-card">
+              <a href={`/posts/${post.slug}`} class="post-card__link">
+                <div class="post-card__image-wrap">
+                  <img src={post.data.image} alt={post.data.title} class="post-card__image" loading="lazy" />
+                  {post.data.readTime && <span class="post-card__read-time">{post.data.readTime}</span>}
+                </div>
+                <div class="post-card__content">
+                  <Badge category={post.data.category} />
+                  <h3 class="post-card__title">{post.data.title}</h3>
+                  <p class="post-card__excerpt">{post.data.excerpt}</p>
+                  <div class="post-card__meta">
+                    <img src={getAvatarUrl(post.data.author, post.data.authorAvatar)} alt={post.data.author} class="post-card__avatar" width="24" height="24" />
+                    <span>{post.data.author}</span>
+                    <span>·</span>
+                    <span>{formatDate(post.data.date)}</span>
+                  </div>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="category-posts__empty">
+          <p>No hay articulos en esta categoria todavia.</p>
+        </div>
+      )}
+
+      <!-- PAGINATION -->
+      {totalPages > 1 && (
+        <nav class="pagination" aria-label="Paginacion">
+          {currentPage > 1 && (
+            <a href={currentPage === 2 ? `/categoria/${category}` : `/categoria/${category}/${currentPage - 1}`} class="pagination__btn pagination__btn--prev">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <span>Anterior</span>
+            </a>
+          )}
+
+          <div class="pagination__numbers">
+            {pageNumbers.map((num) => (
+              num === '...' ? (
+                <span class="pagination__ellipsis">...</span>
+              ) : (
+                <a
+                  href={num === 1 ? `/categoria/${category}` : `/categoria/${category}/${num}`}
+                  class:list={["pagination__number", { active: num === currentPage }]}
+                  aria-current={num === currentPage ? "page" : undefined}
+                >
+                  {num}
+                </a>
+              )
+            ))}
+          </div>
+
+          {currentPage < totalPages && (
+            <a href={`/categoria/${category}/${currentPage + 1}`} class="pagination__btn pagination__btn--next">
+              <span>Siguiente</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          )}
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <!-- BACK TO HOME -->
+  <section class="back-section">
+    <div class="container">
+      <a href="/" class="back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Volver al inicio
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__bottom">
+        <p>&copy; 2026 LaHora24. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<style>
+  /* Category Header - Simple */
+  .category-header {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .category-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .category-header__left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .category-header__title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .category-header__page {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+  }
+
+  /* Posts Grid */
+  .category-posts {
+    padding: 3rem 0 4rem;
+  }
+
+  .category-posts__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .category-posts__empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 3rem 0;
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .pagination__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    background: var(--accent-primary);
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .pagination__btn:hover {
+    background: var(--accent-secondary, #0d9668);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .pagination__numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    padding: 0.5rem;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+  }
+
+  .pagination__number {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .pagination__number:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+  }
+
+  .pagination__number.active {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: white;
+  }
+
+  .pagination__ellipsis {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  /* Back Section */
+  .back-section {
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+  }
+
+  .back-link:hover {
+    color: var(--accent-primary);
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .category-hero {
+      padding: 3rem 0 2rem;
+    }
+
+    .category-hero__stats {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .category-posts__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pagination__btn span {
+      display: none;
+    }
+
+    .pagination__btn {
+      padding: 0.75rem;
+    }
+  }
+</style>

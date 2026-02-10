@@ -1,0 +1,63 @@
+---
+import { getCategoryColor, getCategoryShortName } from '../data/categories';
+
+interface Props {
+  category: string;
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const { category, size = 'md', class: className = '' } = Astro.props;
+
+// Obtener color desde la configuración de categorías
+const color = getCategoryColor(category);
+const label = getCategoryShortName(category);
+
+const sizeClasses = {
+  sm: 'badge--sm',
+  md: '',
+  lg: 'badge--lg'
+};
+---
+
+<span
+  class:list={['badge', sizeClasses[size], className]}
+  style={`--badge-color: ${color}; background-color: ${color};`}
+>
+  {label}
+</span>
+
+<style>
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 4px;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .badge:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .badge--sm {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.625rem;
+  }
+
+  .badge--lg {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  /* Para links */
+  a.badge {
+    cursor: pointer;
+  }
+</style>

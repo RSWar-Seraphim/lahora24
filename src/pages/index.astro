@@ -1,0 +1,521 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdPlaceholder from '../components/AdPlaceholder.astro';
+import Badge from '../components/Badge.astro';
+import { getCollection } from 'astro:content';
+import { categories, getCategoryName, getCategoryShortName, getCategoryColor } from '../data/categories';
+
+// ════════════════════════════════════════════════════════════════
+// DATA QUERIES
+// ════════════════════════════════════════════════════════════════
+
+const allPosts = await getCollection('posts');
+const sortedPosts = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Hero Section: Featured posts (up to 3)
+const featuredPosts = sortedPosts.filter(p => p.data.featured).slice(0, 3);
+const heroMain = featuredPosts[0];
+const heroSide = featuredPosts.slice(1, 3);
+
+// Create a Set of featured post slugs to exclude from other sections
+const featuredSlugs = new Set(featuredPosts.map(p => p.slug));
+
+// Latest News: IA posts only, excluding featured posts (up to 4)
+const latestNews = sortedPosts
+  .filter(p => p.data.category === 'ia' && !p.data.isVideo && !featuredSlugs.has(p.slug))
+  .slice(0, 4);
+
+// Trending: Top 5 most recent posts, excluding featured
+const trending = sortedPosts
+  .filter(p => !featuredSlugs.has(p.slug))
+  .slice(0, 5);
+
+// Popular Articles: Ciberseguridad posts only, excluding featured (up to 6)
+const popularArticles = sortedPosts
+  .filter(p => p.data.category === 'ciberseguridad' && !p.data.isVideo && !featuredSlugs.has(p.slug))
+  .slice(0, 6);
+
+// Crypto Section: Crypto posts, excluding featured (up to 3)
+const cryptoPosts = sortedPosts
+  .filter(p => p.data.category === 'crypto' && !featuredSlugs.has(p.slug))
+  .slice(0, 3);
+const cryptoFeatured = cryptoPosts[0];
+const cryptoOthers = cryptoPosts.slice(1, 3);
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function getRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffHours < 1) return 'Hace menos de 1 hora';
+  if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+  if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+  return formatDate(date);
+}
+
+function getAvatarUrl(author: string, authorAvatar?: string): string {
+  // Use authorAvatar from frontmatter if available, otherwise fallback to dicebear
+  if (authorAvatar) return authorAvatar;
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(author)}`;
+}
+---
+
+<Layout title="Noticias de Tecnología, IA, Ciberseguridad y Criptomonedas">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="container top-bar__inner">
+      <span class="top-bar__date" id="currentDate"></span>
+      <div class="top-bar__socials">
+        <a href="#" aria-label="Twitter / X">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16h-4.267z"/><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/></svg>
+        </a>
+        <a href="#" aria-label="LinkedIn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="#" aria-label="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+        </a>
+        <a href="#" aria-label="RSS">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">
+        <span class="header__logo-text">LA HORA</span><span class="header__logo-accent">24</span>
+      </a>
+      <nav class="header__nav" id="mainNav">
+        <a href="/" class="header__nav-link active">Inicio</a>
+        <a href="/categoria/ia" class="header__nav-link">IA</a>
+        <a href="/categoria/ciberseguridad" class="header__nav-link">Ciberseguridad</a>
+        <a href="/categoria/crypto" class="header__nav-link">Criptomonedas</a>
+      </nav>
+      <div class="header__actions">
+        <button class="header__search-btn" id="searchToggle" aria-label="Buscar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="header__theme-btn" id="themeToggle" aria-label="Cambiar tema">
+          <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a href="#newsletter" class="btn btn--primary header__subscribe-btn">Suscribirse</a>
+        <button class="header__hamburger" id="hamburgerBtn" aria-label="Menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- SEARCH OVERLAY -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-overlay__inner">
+      <button class="search-overlay__close" id="searchClose" aria-label="Cerrar búsqueda">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <form class="search-overlay__form">
+        <input type="search" class="search-overlay__input" placeholder="Buscar artículos, temas, autores..." />
+        <button type="submit" class="search-overlay__submit">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </form>
+      <div class="search-overlay__tags">
+        <span>Tendencias:</span>
+        <a href="#">GPT-5</a>
+        <a href="#">Bitcoin</a>
+        <a href="#">Ransomware</a>
+        <a href="#">Ethereum</a>
+        <a href="#">OpenAI</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND BANNER -->
+  <section class="brand-banner">
+    <div class="container">
+      <div class="brand-banner__content">
+        <h1 class="brand-banner__title">
+          <span class="brand-banner__la">LA</span>
+          <span class="brand-banner__hora">HORA</span>
+          <span class="brand-banner__24">24</span>
+        </h1>
+        <p class="brand-banner__tagline">Noticias de tecnología que no pueden esperar</p>
+        <div class="brand-banner__divider"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- HERO SECTION (DYNAMIC - Featured Posts) -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="container">
+      {featuredPosts.length > 0 ? (
+        <div class="hero__grid">
+          {heroMain && (
+            <article class="hero-card hero-card--main">
+              <a href={`/posts/${heroMain.slug}`} class="hero-card__link">
+                <div class="hero-card__image-wrap">
+                  <img src={heroMain.data.image} alt={heroMain.data.title} class="hero-card__image" loading="eager" />
+                  <div class="hero-card__overlay"></div>
+                </div>
+                <div class="hero-card__content">
+                  <Badge category={heroMain.data.category} />
+                  <h2 class="hero-card__title">{heroMain.data.title}</h2>
+                  <p class="hero-card__excerpt">{heroMain.data.excerpt}</p>
+                  <div class="hero-card__meta">
+                    <img src={getAvatarUrl(heroMain.data.author, heroMain.data.authorAvatar)} alt={heroMain.data.author} class="hero-card__avatar" width="32" height="32" />
+                    <span class="hero-card__author">{heroMain.data.author}</span>
+                    <span class="hero-card__date">{formatDate(heroMain.data.date)}</span>
+                    <span class="hero-card__read-time">{heroMain.data.readTime} de lectura</span>
+                  </div>
+                </div>
+              </a>
+            </article>
+          )}
+          <div class="hero__side">
+            {heroSide.map((post) => (
+              <article class="hero-card hero-card--small">
+                <a href={`/posts/${post.slug}`} class="hero-card__link">
+                  <div class="hero-card__image-wrap">
+                    <img src={post.data.image} alt={post.data.title} class="hero-card__image" loading="eager" />
+                    <div class="hero-card__overlay"></div>
+                  </div>
+                  <div class="hero-card__content">
+                    <Badge category={post.data.category} />
+                    <h3 class="hero-card__title">{post.data.title}</h3>
+                    <div class="hero-card__meta">
+                      <span class="hero-card__author">{post.data.author}</span>
+                      <span class="hero-card__date">{formatDate(post.data.date)}</span>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div class="hero__empty">
+          <p>No hay artículos destacados disponibles. Los posts con <code>featured: true</code> aparecerán aquí.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- AD: After Hero -->
+  <div class="container">
+    <AdPlaceholder slot="home-after-hero" size="leaderboard" />
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- LATEST NEWS (DYNAMIC - Non-Featured Posts) -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="latest-news">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Inteligencia Artificial</h2>
+        <a href="/categoria/ia" class="section-link">Ver todas
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <div class="latest-news__grid">
+        <div class="latest-news__list">
+          {latestNews.length > 0 ? (
+            latestNews.map((post) => (
+              <article class="news-card">
+                <a href={`/posts/${post.slug}`} class="news-card__link">
+                  <div class="news-card__image-wrap">
+                    <img src={post.data.image} alt={post.data.title} class="news-card__image" loading="lazy" />
+                  </div>
+                  <div class="news-card__content">
+                    <Badge category={post.data.category} />
+                    <h3 class="news-card__title">{post.data.title}</h3>
+                    <p class="news-card__excerpt">{post.data.excerpt}</p>
+                    <div class="news-card__meta">
+                      <img src={getAvatarUrl(post.data.author, post.data.authorAvatar)} alt={post.data.author} class="news-card__avatar" width="28" height="28" />
+                      <span class="news-card__author">{post.data.author}</span>
+                      <span class="news-card__date">{formatDate(post.data.date)}</span>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            ))
+          ) : (
+            <p class="news-card__empty">No hay noticias de IA disponibles.</p>
+          )}
+        </div>
+        <aside class="trending-sidebar">
+          <h3 class="trending-sidebar__title">
+            <span class="trending-sidebar__dot"></span>
+            Tendencias
+          </h3>
+          <ol class="trending-sidebar__list">
+            {trending.map((post, index) => (
+              <li class="trending-sidebar__item">
+                <span class="trending-sidebar__number">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <a href={`/posts/${post.slug}`} class="trending-sidebar__link">{post.data.title}</a>
+                  <span class="trending-sidebar__meta">{getRelativeTime(post.data.date)} · {getCategoryShortName(post.data.category)}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <!-- AD: Sidebar Rectangle -->
+          <AdPlaceholder slot="home-sidebar" size="rectangle" />
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE STATS (Static - Would need external API for real data) -->
+  <section class="section stats">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Estadísticas en Vivo</h2>
+        <p class="section__subtitle">Datos del mercado actualizados en tiempo real</p>
+      </div>
+      <div class="stats__grid">
+        <div class="stat-card stat-card--btc">
+          <div class="stat-card__icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/></svg>
+          </div>
+          <div class="stat-card__content">
+            <span class="stat-card__label">Bitcoin</span>
+            <span class="stat-card__value">$152,847</span>
+            <span class="stat-card__change stat-card__change--up">+2.4%</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card--eth">
+          <div class="stat-card__icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z"/></svg>
+          </div>
+          <div class="stat-card__content">
+            <span class="stat-card__label">Ethereum</span>
+            <span class="stat-card__value">$8,234</span>
+            <span class="stat-card__change stat-card__change--up">+1.8%</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card--ai">
+          <div class="stat-card__icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M16 14v4a4 4 0 0 1-8 0v-4"/><circle cx="12" cy="18" r="2"/><path d="M12 12v2"/></svg>
+          </div>
+          <div class="stat-card__content">
+            <span class="stat-card__label">NVDA (IA)</span>
+            <span class="stat-card__value">$892.50</span>
+            <span class="stat-card__change stat-card__change--down">-0.6%</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card--cyber">
+          <div class="stat-card__icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="stat-card__content">
+            <span class="stat-card__label">Ataques Hoy</span>
+            <span class="stat-card__value">2.4M</span>
+            <span class="stat-card__change stat-card__change--neutral">Global</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- CIBERSEGURIDAD SECTION -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="popular">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Ciberseguridad</h2>
+        <a href="/categoria/ciberseguridad" class="section-link">Ver todas
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <div class="popular__grid">
+        {popularArticles.length > 0 ? (
+          popularArticles.map((post) => (
+            <article class="post-card">
+              <a href={`/posts/${post.slug}`} class="post-card__link">
+                <div class="post-card__image-wrap">
+                  <img src={post.data.image} alt={post.data.title} class="post-card__image" loading="lazy" />
+                  <span class="post-card__read-time">{post.data.readTime}</span>
+                </div>
+                <div class="post-card__content">
+                  <Badge category={post.data.category} />
+                  <h3 class="post-card__title">{post.data.title}</h3>
+                  <p class="post-card__excerpt">{post.data.excerpt}</p>
+                  <div class="post-card__meta">
+                    <img src={getAvatarUrl(post.data.author, post.data.authorAvatar)} alt={post.data.author} class="post-card__avatar" width="24" height="24" />
+                    <span>{post.data.author}</span>
+                    <span>·</span>
+                    <span>{formatDate(post.data.date)}</span>
+                  </div>
+                </div>
+              </a>
+            </article>
+          ))
+        ) : (
+          <p class="post-card__empty">No hay artículos de ciberseguridad disponibles.</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- AD: Between Popular and Videos -->
+  <div class="container">
+    <AdPlaceholder slot="home-mid-content" size="leaderboard" />
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- CRYPTO SECTION -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="section videos">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Criptomonedas</h2>
+        <a href="/categoria/crypto" class="section-link">Ver todas
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      {cryptoPosts.length > 0 ? (
+        <div class="videos__grid">
+          {cryptoFeatured && (
+            <article class="video-card video-card--featured">
+              <a href={`/posts/${cryptoFeatured.slug}`} class="video-card__thumbnail">
+                <img src={cryptoFeatured.data.image} alt={cryptoFeatured.data.title} loading="lazy" />
+              </a>
+              <div class="video-card__content">
+                <Badge category={cryptoFeatured.data.category} />
+                <h3 class="video-card__title">{cryptoFeatured.data.title}</h3>
+                <p class="video-card__excerpt">{cryptoFeatured.data.excerpt}</p>
+                <div class="video-card__meta">
+                  <span>{cryptoFeatured.data.author}</span>
+                  <span>{getRelativeTime(cryptoFeatured.data.date)}</span>
+                </div>
+              </div>
+            </article>
+          )}
+          {cryptoOthers.map((post) => (
+            <article class="video-card">
+              <a href={`/posts/${post.slug}`} class="video-card__thumbnail">
+                <img src={post.data.image} alt={post.data.title} loading="lazy" />
+              </a>
+              <div class="video-card__content">
+                <Badge category={post.data.category} />
+                <h3 class="video-card__title">{post.data.title}</h3>
+                <div class="video-card__meta">
+                  <span>{post.data.author}</span>
+                  <span>{getRelativeTime(post.data.date)}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="videos__empty">
+          <p>No hay noticias de criptomonedas disponibles.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- AD: Before Newsletter -->
+  <div class="container">
+    <AdPlaceholder slot="home-before-newsletter" size="leaderboard" />
+  </div>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter" id="newsletter">
+    <div class="container">
+      <div class="newsletter__inner">
+        <div class="newsletter__content">
+          <h2 class="newsletter__title">Mantente Informado las 24 Horas</h2>
+          <p class="newsletter__text">Recibe cada mañana un resumen con las noticias más importantes de tecnología, IA, ciberseguridad y criptomonedas directamente en tu bandeja de entrada.</p>
+        </div>
+        <form class="newsletter__form" id="newsletterForm">
+          <div class="newsletter__input-wrap">
+            <input type="email" class="newsletter__input" placeholder="tu@email.com" required />
+            <button type="submit" class="btn btn--primary newsletter__btn">Suscribirse</button>
+          </div>
+          <p class="newsletter__disclaimer">Sin spam. Cancela cuando quieras. +25,000 suscriptores.</p>
+          <p class="newsletter__success" id="newsletterSuccess">&#10003; ¡Gracias por suscribirte! Revisa tu email para confirmar.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/" class="footer__logo">
+            <span class="footer__logo-text">LA HORA</span><span class="footer__logo-accent">24</span>
+          </a>
+          <p class="footer__description">Tu fuente confiable de noticias sobre tecnología, inteligencia artificial, ciberseguridad y criptomonedas. Información las 24 horas, los 7 días.</p>
+          <div class="footer__socials">
+            <a href="#" aria-label="Twitter / X">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l11.733 16h4.267l-11.733 -16h-4.267z"/><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/></svg>
+            </a>
+            <a href="#" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+            <a href="#" aria-label="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+            </a>
+            <a href="#" aria-label="RSS">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer__column">
+          <h4 class="footer__column-title">Páginas</h4>
+          <ul class="footer__links">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/noticias">Todas las Noticias</a></li>
+            <li><a href="#newsletter">Newsletter</a></li>
+          </ul>
+        </div>
+        <div class="footer__column">
+          <h4 class="footer__column-title">Categorías</h4>
+          <ul class="footer__links">
+            <li><a href="/categoria/ia">Inteligencia Artificial</a></li>
+            <li><a href="/categoria/ciberseguridad">Ciberseguridad</a></li>
+            <li><a href="/categoria/crypto">Criptomonedas</a></li>
+            <li><a href="/noticias">Todas las Noticias</a></li>
+          </ul>
+        </div>
+        <div class="footer__column">
+          <h4 class="footer__column-title">Recursos</h4>
+          <ul class="footer__links">
+            <li><a href="#">Podcasts</a></li>
+            <li><a href="#">Newsletter</a></li>
+            <li><a href="#">Guías</a></li>
+            <li><a href="#">Glosario</a></li>
+            <li><a href="#">API</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 LaHora24. Todos los derechos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="#">Privacidad</a>
+          <a href="#">Términos</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- BACK TO TOP -->
+  <button class="back-to-top" id="backToTop" aria-label="Volver arriba">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+</Layout>

@@ -1,0 +1,150 @@
+---
+interface Props {
+  slot: string;
+  size?: 'banner' | 'rectangle' | 'leaderboard' | 'skyscraper' | 'mobile-banner' | 'in-article';
+  className?: string;
+}
+
+const { slot, size = 'rectangle', className = '' } = Astro.props;
+
+const sizes: Record<string, { width: string; height: string; label: string }> = {
+  'banner': { width: '468px', height: '60px', label: 'Banner 468x60' },
+  'leaderboard': { width: '728px', height: '90px', label: 'Leaderboard 728x90' },
+  'rectangle': { width: '300px', height: '250px', label: 'Rectangle 300x250' },
+  'skyscraper': { width: '160px', height: '600px', label: 'Skyscraper 160x600' },
+  'mobile-banner': { width: '320px', height: '50px', label: 'Mobile Banner 320x50' },
+  'in-article': { width: '100%', height: '280px', label: 'In-Article Ad' },
+};
+
+const sizeConfig = sizes[size];
+---
+
+<div
+  class={`ad-placeholder ad-placeholder--${size} ${className}`}
+  data-ad-slot={slot}
+  style={`max-width: ${sizeConfig.width}; height: ${sizeConfig.height};`}
+>
+  <div class="ad-placeholder__inner">
+    <svg class="ad-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M9 9h6v6H9z" />
+      <path d="M9 3v6M15 3v6M9 15v6M15 15v6M3 9h6M15 9h6M3 15h6M15 15h6" />
+    </svg>
+    <span class="ad-placeholder__label">Publicidad</span>
+    <span class="ad-placeholder__size">{sizeConfig.label}</span>
+    <span class="ad-placeholder__slot">Slot: {slot}</span>
+  </div>
+</div>
+
+<style>
+  .ad-placeholder {
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, rgba(100, 116, 139, 0.1) 100%);
+    border: 2px dashed rgba(148, 163, 184, 0.4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5rem auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ad-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(148, 163, 184, 0.05) 10px,
+      rgba(148, 163, 184, 0.05) 20px
+    );
+  }
+
+  .ad-placeholder__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ad-placeholder__icon {
+    width: 32px;
+    height: 32px;
+    color: rgba(148, 163, 184, 0.6);
+  }
+
+  .ad-placeholder__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(148, 163, 184, 0.8);
+  }
+
+  .ad-placeholder__size {
+    font-size: 0.625rem;
+    color: rgba(148, 163, 184, 0.6);
+  }
+
+  .ad-placeholder__slot {
+    font-size: 0.5rem;
+    color: rgba(148, 163, 184, 0.4);
+    font-family: monospace;
+  }
+
+  /* Responsive adjustments */
+  .ad-placeholder--leaderboard {
+    display: none;
+  }
+
+  .ad-placeholder--mobile-banner {
+    display: flex;
+  }
+
+  @media (min-width: 768px) {
+    .ad-placeholder--leaderboard {
+      display: flex;
+    }
+
+    .ad-placeholder--mobile-banner {
+      display: none;
+    }
+  }
+
+  /* In-article specific styles */
+  .ad-placeholder--in-article {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Dark mode support */
+  [data-theme="dark"] .ad-placeholder {
+    background: linear-gradient(135deg, rgba(71, 85, 105, 0.2) 0%, rgba(51, 65, 85, 0.2) 100%);
+    border-color: rgba(71, 85, 105, 0.4);
+  }
+
+  [data-theme="dark"] .ad-placeholder::before {
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(71, 85, 105, 0.1) 10px,
+      rgba(71, 85, 105, 0.1) 20px
+    );
+  }
+
+  [data-theme="dark"] .ad-placeholder__icon {
+    color: rgba(148, 163, 184, 0.4);
+  }
+
+  [data-theme="dark"] .ad-placeholder__label {
+    color: rgba(148, 163, 184, 0.6);
+  }
+</style>

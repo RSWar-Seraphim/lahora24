@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Tu fuente diaria de noticias sobre inteligencia artificial, ciberseguridad y criptomonedas." } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — LaHora24</title>
+  <meta name="description" content={description} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <slot />
+  <script>
+    // Theme toggle
+    const toggle = document.getElementById('themeToggle');
+    if (toggle) {
+      const saved = localStorage.getItem('lahora24-theme');
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      toggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('lahora24-theme', next);
+      });
+    }
+
+    // Date display
+    const dateEl = document.getElementById('currentDate');
+    if (dateEl) {
+      const now = new Date();
+      dateEl.textContent = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // Back to top
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+      window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('visible', window.scrollY > 600);
+      });
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.getElementById('mainNav');
+    if (hamburger && nav) {
+      hamburger.addEventListener('click', () => {
+        nav.classList.toggle('active');
+        hamburger.classList.toggle('active');
+      });
+    }
+
+    // Search overlay
+    const searchToggle = document.getElementById('searchToggle');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchClose = document.getElementById('searchClose');
+    if (searchToggle && searchOverlay) {
+      searchToggle.addEventListener('click', () => searchOverlay.classList.add('active'));
+      searchClose?.addEventListener('click', () => searchOverlay.classList.remove('active'));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') searchOverlay.classList.remove('active');
+      });
+    }
+  </script>
+</body>
+</html>

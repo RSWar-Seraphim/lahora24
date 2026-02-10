@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(if not exist \"C:\\\\PythonProjects\\\\lahora24\\\\src\" mkdir \"C:\\\\PythonProjects\\\\lahora24\\\\src\")",
+      "Bash(node:*)",
+      "Bash(powershell \"Get-Content ''C:\\\\PythonProjects\\\\lahora24\\\\src\\\\style.css'' -Head 15\")",
+      "Bash(powershell \"\\(Get-Content ''C:\\\\PythonProjects\\\\lahora24\\\\src\\\\style.css''\\).Length\")",
+      "Bash(powershell:*)",
+      "Bash(printf:*)",
+      "Bash(/c/Python313/python:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Edit",
+      "Write"
+    ]
+  }
+}

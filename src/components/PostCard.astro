@@ -1,0 +1,69 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Badge from './Badge.astro';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  variant?: 'default' | 'horizontal' | 'featured';
+}
+
+const { post, variant = 'default' } = Astro.props;
+const { title, excerpt, category, image, author, authorAvatar, date, readTime } = post.data;
+const slug = post.slug;
+
+const formattedDate = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+
+{variant === 'featured' ? (
+  <article class="hero-card">
+    <a href={`/posts/${slug}`} class="hero-card__link">
+      <img src={image} alt={title} class="hero-card__image" loading="eager" />
+      <div class="hero-card__overlay">
+        <Badge category={category} />
+        <h2 class="hero-card__title">{title}</h2>
+        <div class="hero-card__meta">
+          <span>Por {author}</span>
+          <span>{formattedDate}</span>
+          <span>{readTime}</span>
+        </div>
+      </div>
+    </a>
+  </article>
+) : variant === 'horizontal' ? (
+  <article class="news-card news-card--horizontal">
+    <a href={`/posts/${slug}`} class="news-card__image-link">
+      <img src={image} alt={title} class="news-card__image" loading="lazy" />
+    </a>
+    <div class="news-card__content">
+      <Badge category={category} />
+      <h3 class="news-card__title">
+        <a href={`/posts/${slug}`}>{title}</a>
+      </h3>
+      <p class="news-card__excerpt">{excerpt}</p>
+      <div class="news-card__meta">
+        {authorAvatar && <img src={authorAvatar} alt={author} class="news-card__avatar" />}
+        <span class="news-card__author">{author}</span>
+        <span class="news-card__date">{formattedDate}</span>
+        <span class="news-card__read-time">{readTime}</span>
+      </div>
+    </div>
+  </article>
+) : (
+  <article class="post-card" data-category={category}>
+    <a href={`/posts/${slug}`} class="post-card__image-link">
+      <img src={image} alt={title} class="post-card__image" loading="lazy" />
+      <span class="post-card__read-time">{readTime}</span>
+    </a>
+    <div class="post-card__content">
+      <Badge category={category} />
+      <h3 class="post-card__title">
+        <a href={`/posts/${slug}`}>{title}</a>
+      </h3>
+      <div class="post-card__meta">
+        {authorAvatar && <img src={authorAvatar} alt={author} class="post-card__avatar" />}
+        <span>{author}</span>
+        <span>{formattedDate}</span>
+      </div>
+    </div>
+  </article>
+)}
