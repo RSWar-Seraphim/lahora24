@@ -1,7 +1,7 @@
 /**
  * Configuración de categorías - sincronizado desde UniSync
  * Este archivo se genera automáticamente. No editar manualmente.
- * Última sincronización: 2026-02-10T01:52:01.357Z
+ * Última sincronización: 2026-02-12T17:32:03.924Z
  */
 
 export interface CategoryConfig {
