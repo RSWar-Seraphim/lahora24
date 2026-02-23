@@ -1,7 +1,7 @@
 /**
  * Configuración de categorías - sincronizado desde UniSync
  * Este archivo se genera automáticamente. No editar manualmente.
- * Última sincronización: 2026-02-12T17:32:03.924Z
+ * Última sincronización: 2026-02-16T22:50:48.011Z
  */
 
 export interface CategoryConfig {
@@ -26,6 +26,13 @@ export const categories: Record<string, CategoryConfig> = {
     shortName: 'Criptomonedas',
     description: 'Bitcoin, Ethereum, DeFi y el mundo blockchain',
     color: '#f59e0b'
+  },
+  'general': {
+    slug: 'general',
+    name: 'general',
+    shortName: 'general',
+    description: '',
+    color: '#6366f1'
   },
   'ia': {
     slug: 'ia',

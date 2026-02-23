@@ -1,0 +1,10 @@
+# Robots.txt for LaHora24
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://lahora24.com/sitemap-index.xml
+
+# Disallow admin or private paths (if any)
+Disallow: /api/
+Disallow: /_astro/

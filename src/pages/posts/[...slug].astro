@@ -34,14 +34,49 @@ const formattedDate = post.data.date.toLocaleDateString('es-ES', {
 const tags = post.data.tags && post.data.tags.length > 0
   ? post.data.tags
   : [getCategoryName(post.data.category)];
+
+// Schema JSON-LD for article
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": post.data.title,
+  "description": post.data.excerpt,
+  "image": new URL(post.data.image, Astro.site).toString(),
+  "datePublished": post.data.date.toISOString(),
+  "dateModified": post.data.date.toISOString(),
+  "author": {
+    "@type": "Person",
+    "name": post.data.author
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "LaHora24",
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL("/favicon.svg", Astro.site).toString()
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": new URL(`/posts/${post.slug}`, Astro.site).toString()
+  }
+};
 ---
 
-<Layout title={`${post.data.title} - LaHora24`} description={post.data.excerpt}>
+<Layout
+  title={post.data.title}
+  description={post.data.excerpt}
+  image={post.data.image}
+  type="article"
+  publishedTime={post.data.date.toISOString()}
+  author={post.data.author}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   <Header />
 
   <!-- ===================== POST HERO ===================== -->
   <section class="post-hero">
-    <img src={post.data.image} alt={post.data.title} class="post-hero__image" />
+    <img src={post.data.image} alt={post.data.title} width="1200" height="675" class="post-hero__image" loading="eager" />
     <div class="post-hero__overlay">
       <div class="post-hero__container">
         <a href={`/categoria/${post.data.category}`} class="badge" style={`background-color: ${getCategoryColor(post.data.category)};`}>
@@ -51,7 +86,7 @@ const tags = post.data.tags && post.data.tags.length > 0
         <div class="post-hero__meta">
           <div class="post-hero__author">
             {post.data.authorAvatar ? (
-              <img src={post.data.authorAvatar} alt={post.data.author} class="post-hero__author-avatar post-hero__author-avatar--img" />
+              <img src={post.data.authorAvatar} alt={`Avatar de ${post.data.author}`} width="44" height="44" class="post-hero__author-avatar post-hero__author-avatar--img" />
             ) : (
               <div class="post-hero__author-avatar">{post.data.author.charAt(0)}</div>
             )}
@@ -78,7 +113,7 @@ const tags = post.data.tags && post.data.tags.length > 0
     <aside class="post-sidebar">
       <div class="author-card">
         {post.data.authorAvatar ? (
-          <img src={post.data.authorAvatar} alt={post.data.author} class="author-card__avatar author-card__avatar--img" />
+          <img src={post.data.authorAvatar} alt={`Avatar de ${post.data.author}`} width="80" height="80" class="author-card__avatar author-card__avatar--img" />
         ) : (
           <div class="author-card__avatar">{post.data.author.charAt(0)}</div>
         )}

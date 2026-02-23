@@ -1,34 +1,146 @@
 ---
 import '../styles/global.css';
+import { getCollection } from 'astro:content';
+
+// Compute recommended search terms from published post tags
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+const tagCount = new Map<string, number>();
+for (const post of allPosts) {
+  for (const tag of (post.data.tags || [])) {
+    tagCount.set(tag, (tagCount.get(tag) || 0) + 1);
+  }
+}
+const recommendedTags = [...tagCount.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 6)
+  .map(([tag]) => tag);
 
 interface Props {
   title: string;
   description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  author?: string;
+  heroImage?: string;
 }
 
-const { title, description = "Tu fuente diaria de noticias sobre inteligencia artificial, ciberseguridad y criptomonedas." } = Astro.props;
+const {
+  title,
+  description = "Tu fuente diaria de noticias sobre inteligencia artificial, ciberseguridad y criptomonedas.",
+  image = "/og-default.jpg",
+  type = "website",
+  publishedTime,
+  author,
+  heroImage
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+const siteName = "LaHora24";
+const fullTitle = `${title} — ${siteName}`;
 ---
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <script is:inline>
+    (function() {
+      const saved = localStorage.getItem('lahora24-theme');
+      const theme = saved || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title} — LaHora24</title>
+
+  <!-- Primary Meta Tags -->
+  <title>{fullTitle}</title>
+  <meta name="title" content={fullTitle} />
   <meta name="description" content={description} />
+  <meta name="author" content={author || siteName} />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#0b1120" />
+  <meta name="msapplication-TileColor" content="#0b1120" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content={type} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:site_name" content={siteName} />
+  <meta property="og:locale" content="es_ES" />
+  {type === 'article' && publishedTime && (
+    <meta property="article:published_time" content={publishedTime} />
+  )}
+  {type === 'article' && author && (
+    <meta property="article:author" content={author} />
+  )}
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content={canonicalURL} />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- DNS Prefetch & Preconnect -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://api.coingecko.com" />
+  <link rel="dns-prefetch" href="https://api.alternative.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Google Fonts - optional display to prevent CLS -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=optional" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=optional" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=optional" rel="stylesheet" />
+  </noscript>
+
+  <!-- Preload hero image for LCP -->
+  {heroImage && (
+    <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
+  )}
 </head>
 <body>
+  <!-- SEARCH OVERLAY (global — available on all pages) -->
+  <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Buscar en LaHora24">
+    <div class="search-overlay__inner">
+      <div class="search-overlay__topbar">
+        <span class="search-overlay__esc-hint"><kbd>ESC</kbd> para salir</span>
+      </div>
+      <form class="search-overlay__form" id="searchForm" autocomplete="off">
+        <input type="search" id="searchInput" class="search-overlay__input" placeholder="Buscar artículos, temas, autores..." autocomplete="off" />
+        <button type="submit" class="search-overlay__submit" aria-label="Buscar">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </form>
+      <div class="search-overlay__results" id="searchResults"></div>
+      <div class="search-overlay__tags" id="searchTrending">
+        <span>Recomendados:</span>
+        {recommendedTags.map(tag => (
+          <button type="button" data-query={tag}>{tag}</button>
+        ))}
+      </div>
+    </div>
+  </div>
+
   <slot />
+
   <script>
-    // Theme toggle
+    // ─── THEME TOGGLE ───────────────────────────────────────────
     const toggle = document.getElementById('themeToggle');
     if (toggle) {
-      const saved = localStorage.getItem('lahora24-theme');
-      if (saved) {
-        document.documentElement.setAttribute('data-theme', saved);
-      }
       toggle.addEventListener('click', () => {
         const current = document.documentElement.getAttribute('data-theme');
         const next = current === 'dark' ? 'light' : 'dark';
@@ -37,14 +149,7 @@ const { title, description = "Tu fuente diaria de noticias sobre inteligencia ar
       });
     }
 
-    // Date display
-    const dateEl = document.getElementById('currentDate');
-    if (dateEl) {
-      const now = new Date();
-      dateEl.textContent = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    }
-
-    // Back to top
+    // ─── BACK TO TOP ────────────────────────────────────────────
     const backToTop = document.getElementById('backToTop');
     if (backToTop) {
       window.addEventListener('scroll', () => {
@@ -55,7 +160,7 @@ const { title, description = "Tu fuente diaria de noticias sobre inteligencia ar
       });
     }
 
-    // Mobile menu
+    // ─── MOBILE MENU ────────────────────────────────────────────
     const hamburger = document.getElementById('hamburger');
     const nav = document.getElementById('mainNav');
     if (hamburger && nav) {
@@ -65,17 +170,145 @@ const { title, description = "Tu fuente diaria de noticias sobre inteligencia ar
       });
     }
 
-    // Search overlay
+    // ─── SEARCH ─────────────────────────────────────────────────
+    let searchIndex = null;
+    let searchLoaded = false;
+    let searchDebounce;
+
     const searchToggle = document.getElementById('searchToggle');
     const searchOverlay = document.getElementById('searchOverlay');
     const searchClose = document.getElementById('searchClose');
-    if (searchToggle && searchOverlay) {
-      searchToggle.addEventListener('click', () => searchOverlay.classList.add('active'));
-      searchClose?.addEventListener('click', () => searchOverlay.classList.remove('active'));
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') searchOverlay.classList.remove('active');
-      });
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const searchTrending = document.getElementById('searchTrending');
+    const searchForm = document.getElementById('searchForm');
+
+    async function loadSearchIndex() {
+      if (searchLoaded) return;
+      try {
+        const res = await fetch('/search-index.json');
+        searchIndex = await res.json();
+        searchLoaded = true;
+      } catch (e) {
+        console.error('Error al cargar índice de búsqueda', e);
+      }
     }
+
+    function scorePost(post, words) {
+      let score = 0;
+      for (const w of words) {
+        if (post.title.toLowerCase().includes(w)) score += 10;
+        if (post.tags.some(t => t.toLowerCase().includes(w))) score += 5;
+        if (post.excerpt.toLowerCase().includes(w)) score += 3;
+        if (post.author.toLowerCase().includes(w)) score += 2;
+        if (post.categoryName.toLowerCase().includes(w)) score += 1;
+      }
+      return score;
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+      );
+    }
+
+    function highlightText(text, words) {
+      let result = escHtml(text);
+      for (const w of words) {
+        const safe = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        result = result.replace(new RegExp(`(${safe})`, 'gi'), '<mark>$1</mark>');
+      }
+      return result;
+    }
+
+    function renderResults(results, query, words) {
+      if (!searchResults) return;
+      if (!results.length) {
+        searchResults.innerHTML = `
+        <div class="search-overlay__no-results">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <p>Sin resultados para <strong>"${escHtml(query)}"</strong></p>
+          <span>Intenta con otras palabras clave</span>
+        </div>`;
+        if (searchTrending) searchTrending.style.display = 'none';
+        return;
+      }
+      if (searchTrending) searchTrending.style.display = 'none';
+      searchResults.innerHTML = results.slice(0, 8).map(post => `
+        <a href="/posts/${escHtml(post.slug)}" class="search-result">
+          ${post.image ? `<img src="${escHtml(post.image)}" alt="" class="search-result__image" loading="lazy" width="80" height="60" />` : ''}
+          <div class="search-result__body">
+            <span class="search-result__category">${escHtml(post.categoryName)}</span>
+            <h3 class="search-result__title">${highlightText(post.title, words)}</h3>
+            <p class="search-result__meta">${escHtml(post.author)} &middot; ${escHtml(post.date)}</p>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    function performSearch(query) {
+      if (!searchIndex || !searchResults) return;
+      const q = query.trim();
+      if (!q) {
+        searchResults.innerHTML = '';
+        if (searchTrending) searchTrending.style.display = '';
+        return;
+      }
+      const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+      const scored = searchIndex
+        .map(post => ({ post, score: scorePost(post, words) }))
+        .filter(({ score }) => score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map(({ post }) => post);
+      renderResults(scored, q, words);
+    }
+
+    function openSearch() {
+      if (!searchOverlay) return;
+      searchOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => (searchInput as HTMLInputElement)?.focus(), 80);
+      loadSearchIndex();
+    }
+
+    function closeSearch() {
+      if (!searchOverlay) return;
+      searchOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (searchToggle) searchToggle.addEventListener('click', openSearch);
+    if (searchClose) searchClose.addEventListener('click', closeSearch);
+
+    searchOverlay?.addEventListener('click', (e) => {
+      if (e.target === searchOverlay) closeSearch();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSearch();
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        openSearch();
+      }
+    });
+
+    searchInput?.addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => performSearch((searchInput as HTMLInputElement).value), 250);
+    });
+
+    searchForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      performSearch((searchInput as HTMLInputElement)?.value || '');
+    });
+
+    searchTrending?.querySelectorAll('[data-query]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const q = (btn as HTMLElement).dataset.query || '';
+        if (searchInput) (searchInput as HTMLInputElement).value = q;
+        performSearch(q);
+      });
+    });
   </script>
 </body>
 </html>
