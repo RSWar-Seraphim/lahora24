@@ -2,7 +2,7 @@
 title: "Hackers Chinos Explotan Vulnerabilidad Crítica en Dell"
 excerpt: "A suspected Chinese state-backed hacking group has been quietly exploiting a critical Dell security flaw in zero-day attacks that started in mid-2024. Security ..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:04:02.000Z
 category: "ciberseguridad"
 image: "/images/hackers-chinos-20260218.webp"

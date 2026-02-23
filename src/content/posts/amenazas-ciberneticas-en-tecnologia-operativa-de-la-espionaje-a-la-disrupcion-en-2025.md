@@ -2,7 +2,7 @@
 title: "Amenazas Cibernéticas en Tecnología Operativa: De la Espionaje a la Disrupción en 2025"
 excerpt: "FUENTE: https://securitybrief.co.uk/story/ot-cyber-threats-shift-from-spying-to-disruption-in-2025 TÍTULO: OT cyber threats shift from spying to disruption in 2..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-18T23:52:59.000Z
 category: "ciberseguridad"
 image: "/images/amenazas-ciberneticas-ot-20260218.webp"

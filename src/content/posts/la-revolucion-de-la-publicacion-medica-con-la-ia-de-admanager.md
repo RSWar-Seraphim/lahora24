@@ -2,7 +2,7 @@
 title: "La Revolución de la Publicación Médica con la IA de Admanager"
 excerpt: "La Importancia de la IA en la Publicación Médica La inteligencia artificial está revolucionando la forma en que los profesionales de la salud descubren y..."
 author: "Val Cole"
-authorAvatar: "http://localhost:4321/avatars/val-tiger-cole.webp"
+authorAvatar: "/avatars/val-tiger-cole.webp"
 date: 2026-02-19T17:38:29.000Z
 category: "ia"
 image: "/images/inteligencia-artificial-20260219.webp"

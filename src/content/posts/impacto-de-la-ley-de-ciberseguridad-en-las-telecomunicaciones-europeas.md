@@ -2,7 +2,7 @@
 title: "Impacto de la Ley de Ciberseguridad en las Telecomunicaciones Europeas"
 excerpt: "La propuesta de revisión de la Cybersecurity Act (CSA) presentada por la Comisión Europea el pasado 20 de enero ha puesto en alerta a los operadores de telecomu..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:42:13.000Z
 category: "ciberseguridad"
 image: "/images/ley-de-ciberseguridad-20260218.webp"

@@ -2,7 +2,7 @@
 title: "El Futuro del Mercado de Ciberseguridad para 2032 - Análisis"
 excerpt: "El mercado de la ciberseguridad está en una trayectoria de crecimiento impresionante, proyectado para alcanzar los 555.9 mil millones de dólares para el año 203..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T13:25:55.000Z
 category: "ciberseguridad"
 image: "/images/mercado-de-ciberseguridad-20260219.webp"

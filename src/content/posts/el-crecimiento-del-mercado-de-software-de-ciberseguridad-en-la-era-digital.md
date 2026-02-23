@@ -2,7 +2,7 @@
 title: "El Crecimiento del Mercado de Software de Ciberseguridad en la Era Digital"
 excerpt: "FUENTE: https://www.prnewswire.com/news-releases/cybersecurity-software-market-driven-by-escalating-cyber-threats-rapid-digital-transformation-and-expanding-ent..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-18T23:53:54.000Z
 category: "ciberseguridad"
 image: "/images/ciberseguridad-20260218.webp"

@@ -2,7 +2,7 @@
 title: "Ciberseguridad en 2026: Prioridad Estratégica en España"
 excerpt: "FUENTE: https://directortic.es/reportajes/tendencias-ciberseguridad-2026-2026021847743.htm TÍTULO: 2026, el año en que la ciberseguridad se consolida como inver..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:43:00.000Z
 category: "ciberseguridad"
 image: "/images/ciberseguridad-2026-20260218.webp"

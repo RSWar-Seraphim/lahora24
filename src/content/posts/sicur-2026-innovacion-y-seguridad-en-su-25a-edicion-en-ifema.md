@@ -2,7 +2,7 @@
 title: "SICUR 2026: Innovación y Seguridad en su 25ª Edición en Ifema"
 excerpt: "FUENTE: https://eleconomista.es/actualidad/noticias/13781999/02/26/sicur-2026-celebrara-su-25-edicion-entre-el-24-y-el-27-de-febrero-en-ifema.html TÍTULO: SICUR..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:32:23.000Z
 category: "ciberseguridad"
 image: "/images/sicur-2026-20260218.webp"

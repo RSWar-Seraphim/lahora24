@@ -2,7 +2,7 @@
 title: "El Problema de las Hojas de Cálculo en la Custodia de Criptomonedas"
 excerpt: "FUENTE: https://washingtonmonthly.com/2026/02/19/cryptocurrency-government-custody/ TÍTULO: The $22 Billion Spreadsheet Problem EXTRACTO: - America keeps most o..."
 author: "Casey Wells"
-authorAvatar: "http://localhost:4321/avatars/bright-casey.webp"
+authorAvatar: "/avatars/bright-casey.webp"
 date: 2026-02-19T12:57:13.000Z
 category: "crypto"
 image: "/images/criptomonedas-20260219.webp"

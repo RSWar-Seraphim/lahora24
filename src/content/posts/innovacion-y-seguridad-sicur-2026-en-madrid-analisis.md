@@ -2,7 +2,7 @@
 title: "Innovación y Seguridad: Sicur 2026 en Madrid - Análisis"
 excerpt: "FUENTE: https://larazon.es/economia/seguridad-integral-cita-sicur-2026_202602186995051a1817b41eb64f0e23.html TÍTULO: La seguridad integral se cita en Sicur 2026..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:33:04.000Z
 category: "ciberseguridad"
 image: "/images/sicur-2026-20260218.webp"

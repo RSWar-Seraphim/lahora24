@@ -2,7 +2,7 @@
 title: "Expansión de GE HealthCare en Tecnología de Imágenes con IA"
 excerpt: "La expansión de GE HealthCare en el ámbito de la tecnología de imágenes habilitadas por inteligencia artificial (IA) ha dado un paso significativo con un contra..."
 author: "Val Cole"
-authorAvatar: "http://localhost:4321/avatars/val-tiger-cole.webp"
+authorAvatar: "/avatars/val-tiger-cole.webp"
 date: 2026-02-19T13:35:22.000Z
 category: "ia"
 image: "/images/ge-healthcare-20260219.webp"

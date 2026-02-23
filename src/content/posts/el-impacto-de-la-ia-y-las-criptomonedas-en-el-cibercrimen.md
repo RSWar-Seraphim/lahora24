@@ -2,7 +2,7 @@
 title: "El Impacto de la IA y las Criptomonedas en el Cibercrimen"
 excerpt: "En la actualidad, el avance de la tecnología ha transformado radicalmente el panorama del cibercrimen. Los líderes del Departamento de Defensa de los..."
 author: "Casey Wells"
-authorAvatar: "http://localhost:4321/avatars/bright-casey.webp"
+authorAvatar: "/avatars/bright-casey.webp"
 date: 2026-02-19T22:58:33.000Z
 category: "crypto"
 image: "/images/cibercrimen-20260219.webp"

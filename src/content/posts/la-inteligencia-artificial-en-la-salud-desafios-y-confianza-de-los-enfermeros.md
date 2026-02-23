@@ -2,7 +2,7 @@
 title: "La Inteligencia Artificial en la Salud: Desafíos y Confianza de los Enfermeros"
 excerpt: "La inteligencia artificial (IA) está transformando el sector de la salud, introduciendo nuevas dinámicas en la forma en que los profesionales médicos, especialm..."
 author: "Val Cole"
-authorAvatar: "http://localhost:4321/avatars/val-tiger-cole.webp"
+authorAvatar: "/avatars/val-tiger-cole.webp"
 date: 2026-02-19T13:34:14.000Z
 category: "ia"
 image: "/images/inteligencia-artificial-en-salud-20260219.webp"

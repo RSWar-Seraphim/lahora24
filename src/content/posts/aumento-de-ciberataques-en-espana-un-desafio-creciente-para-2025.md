@@ -2,7 +2,7 @@
 title: "Aumento de Ciberataques en España: Un Desafío Creciente para 2025"
 excerpt: "Este dato refleja un panorama de amenazas creciente en el país, en el que los ciberdelincuentes han intensificado sus acciones en los últimos meses. La cifra co..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:35:51.000Z
 category: "ciberseguridad"
 image: "/images/ciberataques-en-espana-2025-20260218.webp"

@@ -2,7 +2,7 @@
 title: "Iniciativa Público-Privada para Fortalecer la Ciberseguridad en la IA Financiera"
 excerpt: "WASHINGTON— In support of the President’s AI Action Plan, the U.S. Department of the Treasury today announced the conclusion of a major public-private initiativ..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:04:47.000Z
 category: "ciberseguridad"
 image: "/images/ciberseguridad-ia-20260218.webp"

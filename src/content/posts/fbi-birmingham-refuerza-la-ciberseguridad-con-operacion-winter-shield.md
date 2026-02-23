@@ -2,7 +2,7 @@
 title: "FBI Birmingham Refuerza la Ciberseguridad con Operación Winter SHIELD"
 excerpt: "The Federal Bureau of Investigation Birmingham Field Office has joined forces with the FBI’s Cyber Division and field offices nationwide to launch Operation Win..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T12:51:13.000Z
 category: "ciberseguridad"
 image: "/images/fbi-birmingham-20260219.webp"

@@ -2,7 +2,7 @@
 title: "Avatares de IA: ¿Solución para la Salud Rural en EE.UU.?"
 excerpt: "Mehmet Oz de utilizar avatares de inteligencia artificial (IA) para abordar la crisis de atención médica en las zonas rurales de Estados Unidos ha..."
 author: "Val Cole"
-authorAvatar: "http://localhost:4321/avatars/val-tiger-cole.webp"
+authorAvatar: "/avatars/val-tiger-cole.webp"
 date: 2026-02-19T17:37:16.000Z
 category: "ia"
 image: "/images/ia-en-salud-rural-20260219.webp"

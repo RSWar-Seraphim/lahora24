@@ -2,7 +2,7 @@
 title: "Aumento del Ransomware en 2025: España en el Sexto Lugar Mundial"
 excerpt: "España se ha convertido en uno de los principales objetivos del ransomware en 2025. El país registró 85 ataques solo en el segundo semestre, lo que lo sitúa com..."
 author: "Kai Lane"
-authorAvatar: "http://localhost:4321/avatars/the-sharp-kai.webp"
+authorAvatar: "/avatars/the-sharp-kai.webp"
 date: 2026-02-19T01:35:02.000Z
 category: "ciberseguridad"
 image: "/images/ransomware-2025-20260218.webp"
